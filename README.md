@@ -1,5 +1,5 @@
 # adversarial_seizure_detection
-##Paper: Adversarial representation learning for robust patient-independent epileptic seizure detection
+## Paper: Adversarial representation learning for robust patient-independent epileptic seizure detection
 
 Description
 Link: https://arxiv.org/abs/1909.10868
