@@ -1,0 +1,47 @@
+{
+    "n_classes": 2,
+    "n_person_":13,
+    "n_class_t":2,
+    "sample_persub": 125000,
+    "no_fea": 21,
+    "seg_length": 250,
+
+    "Drop_out_keep": 0.8,
+
+    "_comment1" : "Convolutional AE",
+    "depth_AE": 4,
+    "AE_Kernel_size": [2,2],
+    "padding" : "same",
+    "conv_activation": "relu",
+    "pool_siz":[2,1],
+    "strides":[2,1],
+    "decoder_kernel": 5,
+    "decoder_filter": 1,
+    "decoder_strider":[2,1],
+
+    "_comment2": "CNN Task",
+    "depth_1" :16,
+    "depth_2" :32,
+    "depth_3" :64,
+    "depth_4":128,
+    "depth1_2_kernel" :[3,3],
+    "depth3_4_kernel" :[2,2],
+    "pool1_size": [2,2],
+    "pool1_strides":[2,2],
+    "pool2_size": [2,2],
+    "pool2_strides":[2,2],
+    "pool3_size": [2,2],
+    "pool3_strides":[2,2],
+    "pool4_size": [2,1],
+    "pool4_strides":[2,1],
+
+    "fc1_hidden":300,
+    "fc3_hidden": 21,
+    "fc_activation": "sigmoid",
+
+    "learning_rate": 0.5e-4,
+    "num_epochs": 251,
+    "l2_coefficient": 0.005,
+    "Optimizer": "AdamOptimizer"
+
+}

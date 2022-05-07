@@ -4,9 +4,15 @@ import numpy as np
 import time
 import pickle
 from sklearn import preprocessing
-#import tensorflow.compat.v1 as tf
-#tf.disable_v2_behavior()
+import pandas as pd
+from pathlib import Path
+from datetime import datetime
+from utils import *
+from model import *
+import logging
 
+params_file = 'params.json'
+params = load_param(params_file)
 def one_hot(y_):
     # Function to encode output labels from number indexes
     # e.g.: [[5], [0], [3]] --> [[0, 0, 0, 0, 0, 1], [1, 0, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0]]
@@ -57,7 +63,14 @@ def compute_accuracy_p(v_xs, v_ys):  # this function only calculate the acc of C
     result = sess.run(accuracy, feed_dict={xs: v_xs, ys_p: v_ys, keep_prob: keep})
     return result
 
-
+date = datetime.now().strftime("%Y_%m_%d-%I-%M_%p")
+filename = f"test_{date}"+'.csv'
+logger_name = f"train_{date}"+'.log'
+print(params["AE_Kernel_size"],params["sample_persub"],params["padding"],params["conv_activation"])
+headerList = ['P_ID','Step','train_acc_task','train_acc_person','test_acc_task','testing_AE','testing_t',
+                          'training_cost_total','training_cost_AE','training_cost_t','training_cost_p']
+logger=set_logger(logger_name)
+log_hyperparameter(logger,params_file)
 # # WoW! use this to limit the GPU number
 # import os
 # GPU_ID = 2
@@ -98,6 +111,10 @@ print('the shape of maked person label', ll.shape)
 ll_test = np.ones([n_sample_, 1])*n_person_
 
 ss_train = time.time()
+n_class_t = params["n_class_t"]  # 0-3
+n_class_p = params["n_person_"]  # 0-8
+keep = params["Drop_out_keep"]
+
 # Person Independent
 for P_ID in range(14):  # n_person_++1
     if P_ID==0:
@@ -105,6 +122,8 @@ for P_ID in range(14):  # n_person_++1
     else:
         reuse=True
     """Select train and test subject"""
+    
+    
     data_ = all_data[sample_persub*P_ID:sample_persub*(P_ID+1)]
 
     list = range(sample_persub*P_ID, sample_persub*(P_ID+1))
@@ -115,6 +134,7 @@ for P_ID in range(14):  # n_person_++1
     # continue
     """Replace the original person data by the maked data"""
     no_fea_long = train_data.shape[-1] - 1  # here is - 2, because has two IDs
+    print("no_fea_long==",no_fea_long)
     print(train_data[:, :no_fea_long+1].shape, ll.shape)
     train_data = np.hstack((train_data[:, :no_fea_long+1], ll))
     test_data = np.hstack((test_data[:, :no_fea_long + 1], ll_test))
@@ -134,9 +154,6 @@ for P_ID in range(14):  # n_person_++1
     label_train_p = one_hot(label_train_p)
 
 
-    n_class_t = 2  # 0-3
-    n_class_p = n_person_  # 0-8
-    keep = 0.8
 
     a = feature_train
 
@@ -160,167 +177,59 @@ for P_ID in range(14):  # n_person_++1
         f = label_train_p[(0 + batch_size * i):(batch_size + batch_size * i), :]
         train_label_p.append(f)
     print (train_label_p[0].shape)
+    
 
     """Placeholder"""
     # define placeholder for inputs to network
-    #tf.compat.v1.disable_eager_execution()
-    xs = tf.compat.v1.placeholder(tf.float32, [None, no_fea_long], name='xsss')  # 249*100
-    ys_t = tf.compat.v1.placeholder(tf.float32, [None, n_class_t], name='ys_t')
-    ys_p = tf.compat.v1.placeholder(tf.float32, [None, n_class_p], name='ys_p')
-    keep_prob = tf.compat.v1.placeholder(tf.float32, name='keep')
-
-    """AE code, whihc is divided into two represents"""
-    """Use tf.nn.relu in the hidden layer if maxmin scaler; sigmoid if z-score;
-    use maxmin, AE converge better but the classification training acc cannot reach 100%;
-    use z-score, the opposite. I perfer z-score. Or use maxmin, make the network deeper?
-    """
-    """Convolutional AE"""
-    with tf.compat.v1.variable_scope("AE", reuse=reuse):
-        # dim_code = 1000
-        input = tf.reshape(xs, [-1, seg_length, no_fea, 1])  # [200, 14]
-        input = tf.contrib.layers.batch_norm(input, decay=0.9)
-        #input = tf.compat.v1.layers.batch_normalization(input, decay=0.9)
-        input = tf.nn.dropout(input, keep_prob)
-        l_AE, w_AE = 2, 1
-        print(xs.shape)  # [n_samples, 28,28,1]
-
-        depth_AE = 4  # default is 8
-        conv1 = tf.layers.conv2d(inputs=input, filters=depth_AE, kernel_size=[2, 2], padding="same",
-                                 activation=tf.nn.relu)
-        h_t = tf.layers.max_pooling2d(inputs=conv1, pool_size=[l_AE, w_AE], strides=[l_AE, w_AE])
-        # pool1 = tf.contrib.layers.batch_norm(pool1, decay=0.9)
-
-        conv1_p = tf.layers.conv2d(inputs=input, filters=depth_AE, kernel_size=[2, 2], padding="same",
-                                   activation=tf.nn.relu)
-        h_p = tf.layers.max_pooling2d(inputs=conv1_p, pool_size=[l_AE, w_AE], strides=[l_AE, w_AE])
-
-        # decoder
-        output_t = tf.layers.conv2d_transpose(h_t, kernel_size=5, filters=1, strides=[l_AE, w_AE], padding='same')
-        # output_t = tf.nn.relu(tf.contrib.layers.batch_norm(output_t, decay=0.9))
-        output_p = tf.layers.conv2d_transpose(h_p, kernel_size=5, filters=1, strides=[l_AE, w_AE], padding='same')
-        # output_p = tf.nn.relu(tf.contrib.layers.batch_norm(output_p, decay=0.9))
-        output = (output_t + output_p) / 2
-
-        # #another decoder
-        # h = (h_t + h_p)/2
-        # output = tf.layers.conv2d_transpose(h, kernel_size=5, filters=1, strides=[l_AE, w_AE], padding='same')
-        # output = tf.nn.relu(tf.contrib.layers.batch_norm(output, decay=0.9))
-
-        output = tf.reshape(output, [-1, seg_length * no_fea])
+   
+    xs,ys_t,ys_p,keep_prob = init_tf_placeholder(params,no_fea_long)
+    #CNN code for AE
+    h_t,h_p,output = CNN_AE(params,"AE",reuse,xs,keep_prob)   
 
     """CNN code for task, maybe we can make it deeper? """
-    l_1, w_1 = 2, 2
-    l_2, w_2 = 2, 2
-    l_3, w_3 = 2, 2
-    l_4, w_4 = 2, 1
-
-    with tf.compat.v1.variable_scope("class_t", reuse=reuse):
-        # x_image_t = tf.reshape(h_t, [-1, 10, 10, 1])  # [200, 14]
-        x_image_t = tf.contrib.layers.batch_norm(h_t, decay=0.9)
-
-        # x_image_t = tf.nn.dropout(x_image_t, keep_prob)
-        print(x_image_t.shape)  # [n_samples, 28,28,1]
-        depth_1 = 16  # default is 8
-        conv1 = tf.layers.conv2d(inputs=x_image_t, filters=depth_1, kernel_size=[3, 3], padding="same", activation=tf.nn.relu)
-        pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[l_1, w_1], strides=[l_1, w_1])
-        pool1 = tf.contrib.layers.batch_norm(pool1, decay=0.9)
-
-        depth_2 = 32  # default is 32
-        conv2 = tf.layers.conv2d(inputs=pool1, filters=depth_2, kernel_size=[3, 3], padding="same", activation=tf.nn.relu)
-        pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[l_2, w_2], strides=[l_2, w_2])
-        pool2 = tf.contrib.layers.batch_norm(pool2, decay=0.9)
-
-        depth_3 = 64
-        conv3 = tf.layers.conv2d(inputs=pool2, filters=depth_3, kernel_size=[2, 2], padding="same", activation=tf.nn.relu)
-        pool3 = tf.layers.max_pooling2d(inputs=conv3, pool_size=[l_3, w_3], strides=[l_3, w_3])
-        pool3 = tf.contrib.layers.batch_norm(pool3, decay=0.9)
-        # print(pool1.get_shape(), pool2.get_shape(), pool3.get_shape(),)
-
-        depth_4 = 128
-        conv4 = tf.layers.conv2d(inputs=pool3, filters=depth_4, kernel_size=[2, 2], padding="same", activation=tf.nn.relu)
-        pool4 = tf.layers.max_pooling2d(inputs=conv4, pool_size=[l_4, w_4], strides=[l_4, w_4])
-        pool4 = tf.contrib.layers.batch_norm(pool4, decay=0.9)
-
-        fc1 = tf.contrib.layers.flatten(pool4)  # flatten the pool 2
-        print(pool1.get_shape(), pool2.get_shape(), pool3.get_shape(),  pool4.get_shape(), fc1.get_shape())
-
-
-        # """Add another FC layer"""
-        fc1 = tf.layers.dense(fc1, units=300, activation=tf.nn.sigmoid)
-        fc1 = tf.nn.dropout(fc1, keep_prob)
-
-        dim_hidden = 21
-        fc3 = tf.layers.dense(fc1, units=dim_hidden, activation=tf.nn.sigmoid)
-        fc3 = tf.nn.dropout(fc3, keep_prob)
-
-        # Attention layer
-        att = tf.layers.dense(xs, units=fc3.shape[-1], activation=tf.nn.sigmoid)
-        fc3 = tf.multiply(fc3, att)
-
-        prediction_t = tf.layers.dense(fc3, units=n_class_t, activation=None)
-        print('prediction_t', prediction_t.get_shape())
-
+    
+    att, prediction_t = CNN_Class_t(params,h_t,xs,keep_prob,reuse)
     """CNN code for person"""
-    with tf.compat.v1.variable_scope("class_p", reuse=reuse):
-        x_image_p = tf.contrib.layers.batch_norm(h_p, decay=0.9)
-
-        conv1_p = tf.layers.conv2d(inputs=x_image_p, filters=depth_1, kernel_size=[3, 3], padding="same", activation=tf.nn.relu)
-        pool1_p = tf.layers.max_pooling2d(inputs=conv1_p, pool_size=[l_1, w_1], strides=[l_1, w_1])
-        pool1_p = tf.contrib.layers.batch_norm(pool1_p, decay=0.9)
-
-        conv2_p = tf.layers.conv2d(inputs=pool1_p, filters=depth_2, kernel_size=[3, 3], padding="same", activation=tf.nn.relu)
-        pool2_p = tf.layers.max_pooling2d(inputs=conv2_p, pool_size=[l_2, w_2], strides=[l_2, w_2])
-        pool2_p = tf.contrib.layers.batch_norm(pool2_p, decay=0.9)
-
-        conv3_p = tf.layers.conv2d(inputs=pool2_p, filters=depth_2, kernel_size=[2, 2], padding="same",
-                                   activation=tf.nn.relu)
-        pool3_p = tf.layers.max_pooling2d(inputs=conv3_p, pool_size=[l_3, w_3], strides=[l_3, w_3])
-        pool3_p = tf.contrib.layers.batch_norm(pool3_p, decay=0.9)
-
-        conv4_p = tf.layers.conv2d(inputs=pool3_p, filters=depth_4, kernel_size=[2, 2], padding="same", activation=tf.nn.relu)
-        pool4_p = tf.layers.max_pooling2d(inputs=conv4_p, pool_size=[l_4, w_4], strides=[l_4, w_4])
-        pool4_p = tf.contrib.layers.batch_norm(pool4_p, decay=0.9)
-
-        fc1_p = tf.contrib.layers.flatten(pool4_p)  # flatten the pool 2
-
-        dim_hidden_p = 200
-        fc3_p = tf.layers.dense(fc1_p, units=dim_hidden_p, activation=tf.nn.sigmoid)
-
-        fc3_p = tf.nn.dropout(fc3_p, keep_prob)
-
-        prediction_p = tf.layers.dense(fc3_p, units=n_class_p, activation=None)
-        print('prediction_p', tf.shape(prediction_p))
-
+    
+    prediction_p  = CNN_Class_p(params,h_p,keep_prob,reuse)
     def kl_divergence(p, q):
         return tf.reduce_sum(p * tf.log(p/q))
 
 
     """cost calculation"""
-    train_vars = tf.trainable_variables()
-    l2_AE = 0.005 * sum(tf.nn.l2_loss(var) for var in tf.trainable_variables() if var.name.startswith("AE"))
-    l2_class = 0.005 * sum(tf.nn.l2_loss(var) for var in tf.trainable_variables() if var.name.startswith("class"))
-    """multiply 5 to enhance the cross_entropy_t """
-    cross_entropy_t = 10*tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction_t, labels=ys_t))
+    train_vars = tf.compat.v1.trainable_variables() 
+    l2_coefficient = params["l2_coefficient"]
+    l2_AE = l2_coefficient * sum(tf.nn.l2_loss(var) for var in train_vars if var.name.startswith("CNN_AE")) #0.005
+    l2_class = l2_coefficient * sum(tf.nn.l2_loss(var) for var in train_vars if var.name.startswith("CNN_Class_p"))
+    """multiply 10 to enhance the cross_entropy_t """
+    cross_entropy_t = 10*tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction_t, labels=ys_t)) 
     cross_entropy_p = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction_p, labels=ys_p))
-    """Add 0.1 to reduce the cost_AE"""
-    cost_AE = tf.reduce_mean(tf.pow(xs - output, 2)) + l2_AE
+ 
+    cost_AE = (tf.reduce_mean(tf.pow(xs - output, 2)) + l2_AE)
 
-    class_vars = [var for var in train_vars if var.name.startswith("class")]  # discriminator tensor
-    AE_vars = [var for var in train_vars if var.name.startswith("AE")]
-    t_vars = [var for var in train_vars if var.name.startswith("class_t")]
+    class_vars = [var for var in train_vars if var.name.startswith("CNN_Class_p")]  
+    AE_vars = [var for var in train_vars if var.name.startswith("CNN_AE")]
+    t_vars = [var for var in train_vars if var.name.startswith("CNN_Class_t")]
 
     cost = cost_AE  + cross_entropy_t +   cross_entropy_p + l2_class + l2_AE
-    lr = 0.00005  # use 0.0001 for parameter tuning
+    lr = params["learning_rate"]
+    
     with tf.compat.v1.variable_scope("optimization", reuse=reuse):
-        train_step_task = tf.train.AdamOptimizer(lr).minimize(cost, )
-        # train_step_AE = tf.train.AdamOptimizer(lr).minimize(cost_AE+l2_AE, var_list=AE_vars)
-        train_step_t = tf.train.AdamOptimizer(lr).minimize(cross_entropy_t)
-    # 1. AE learning rate= 0.00001 2. dim_code larger better, 3. add cost_AE on cost.
-
-    con = tf.ConfigProto()
+        train_step_task = tf.compat.v1.train.AdamOptimizer(lr).minimize(cost) 
+      
+        train_step_t =  tf.compat.v1.train.AdamOptimizer(lr).minimize(cross_entropy_t) 
+    
+    
+    con = tf.compat.v1.ConfigProto() 
     con.gpu_options.allow_growth = True
-    sess = tf.Session(config=con)
-    init = tf.global_variables_initializer()
+    sess = tf.compat.v1.Session(config=con) 
+    '''
+    config = tf.ConfigProto()
+    config.gpu_options.per_process_gpu_memory_fraction = 0.9
+    sess = tf.Session(config=config)
+    '''
+    
+    init = tf.compat.v1.global_variables_initializer() #tf.global_variables_initializer()
     sess.run(init)
     # History records of loss functions
     cost_his = []
@@ -330,15 +239,16 @@ for P_ID in range(14):  # n_person_++1
 
     test_cost_t_his = []
 
-    start=time.clock()
+    start=time.time()
     step = 1
-    while step < 6:  # 51,251 iterations
+    num_epochs = params["num_epochs"]
+    while step < num_epochs:  # 250 iterations
         print('iteration step', step)
         for i in range(n_group):
             feed = {xs: train_fea[i], ys_t: train_label_t[i], ys_p: train_label_p[i], keep_prob:keep}
             sess.run(train_step_task, feed_dict=feed)
             sess.run(train_step_t, feed_dict=feed)
-
+        print("iteration Running Time,", time.time()-start)
         if step % 5 == 0:
             """training cost"""
             cost_, cost_AE_, cross_entropy_p_, cross_entropy_t_=sess.run([cost, cost_AE, cross_entropy_p, cross_entropy_t],
@@ -349,14 +259,26 @@ for P_ID in range(14):  # n_person_++1
             cost_AE_test_, cross_entropy_t_test_=sess.run([cost_AE, cross_entropy_t],
                                                           feed_dict ={xs: feature_test, ys_t: label_test_t, keep_prob: keep})
 
-            print('person, step:',P_ID, step, 'train acc task', compute_accuracy_t(feature_train, label_train_t),
-                  'train acc person', compute_accuracy_p(feature_train, label_train_p),
-                  ',the test acc task', compute_accuracy_t(feature_test, label_test_t),
+            train_acc_task = compute_accuracy_t(feature_train, label_train_t)
+            train_acc_person = compute_accuracy_p(feature_train, label_train_p)
+            test_acc_task = compute_accuracy_t(feature_test, label_test_t)
+            print('person, step:',P_ID, step, 'train acc task', train_acc_task ,
+                  'train acc person', train_acc_person,
+                  ',the test acc task', test_acc_task ,
                   'testing: AE, t', cost_AE_test_, cross_entropy_t_test_)
 
             print('training cost: total, AE, t, p',cost_, cost_AE_,  cross_entropy_t_, cross_entropy_p_)
+            
+             
+            train_results = []
+            train_results.append(P_ID)
+            train_results.extend([step,train_acc_task,train_acc_person,test_acc_task,cost_AE_test_,
+                                 cross_entropy_t_test_,cost_, cost_AE_,cross_entropy_t_,cross_entropy_p_])
+            save_data(filename, headerList,train_results)
+            
             cost_his.append(cost_)
             cost_AE_his.append(cost_AE_)
+            
             cost_t_his.append(cross_entropy_t_)
             cost_p_his.append(cross_entropy_p_)
 
@@ -371,11 +293,11 @@ for P_ID in range(14):  # n_person_++1
             print('training, testing time', time.time()-ss_train, time.time()-ss)
 
             pickle.dump(att_,  open('TUH_attention_P'
-                                    +str(step)+'_backup.p',  "wb"), protocol=2)
+                                    +str(step)+date+'_backup.p',  "wb"), protocol=2)
             print('attention saved, person:', P_ID)
 
         step += 1
-
+    print("PID ",P_ID,"Training Time", time.time()-start)
     # save the cost history values for convergence analysis
     pickle.dump(cost_his, open('cost_his.p', "wb"))
     pickle.dump(cost_AE_his,
@@ -389,5 +311,6 @@ for P_ID in range(14):  # n_person_++1
     print("five losses are saved at /home/xiangzhang/scratch/activity_recognition_practice/Parkinson_seizure")
 
 
-
-
+print("total training time",time.time()-ss_train)
+logger.info("total training time-- %s",time.time()-ss_train)
+logging.shutdown()
