@@ -15,8 +15,9 @@ If you are using conda, it is recommended to switch to a new virtual environment
 
 1. Tensorflow 1.15
 2. Python 3.7
+* If you plan to use GPU computation, install CUDA
 
-## Data
+## Data preparation
 Download the data from the following box folder.
 https://uofi.box.com/s/z2ji0ilz1n7ylamv1v3s5pa4bmo9imyc
 
@@ -25,11 +26,21 @@ https://uofi.box.com/s/z2ji0ilz1n7ylamv1v3s5pa4bmo9imyc
 2. util.py -> script used to load the configruation file, log the hyperparameter and save the test results
 3. adversarial_seizure_detection.py ->script used for running the model
 
+## Hyperparameter Setting
+
+* Please edit the params.json file to update the model's hyperparameter
+
 ## Training & Evaluation
 
-To train and evaluate the model performance, run the following commands.
+* To train and evaluate the model performance, run the following commands.
 
-python adversarial_seizure_detection.py
+$ python adversarial_seizure_detection.py
+
+* When training & evaluation is completed, it will generate the following files:
+1. Log file---record the hyperparameter values for the test
+2. test results csv file---record the each subject test results
+3. 4 cost loss data files
+4. 5 attention outputs files
 
 ## Results
 
