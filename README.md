@@ -50,6 +50,7 @@ $ python adversarial_seizure_detection.py
 | 0.755|0.814|0.965|0.781|0.762|0.719|0.731|0.904|0.772|0.629|0.92|0.578|0.694|0.755|0.77|
 
 ## Citation
+```yaml
 @article{zhang2020adversarial,
   title={Adversarial representation learning for robust patient-independent epileptic seizure detection},
   author={Zhang, Xiang and Yao, Lina and Dong, Manqing and Liu, Zhe and Zhang, Yu and Li, Yong},
@@ -60,4 +61,6 @@ $ python adversarial_seizure_detection.py
   year={2020},
   publisher={IEEE}
   keywords = {Non-invasive EEG,seizure detection,patient-independent,adversarial deep learning},
+  repository-code = {https://github.com/xiangzhang1015/adversarial_seizure_detection},
 }
+```
