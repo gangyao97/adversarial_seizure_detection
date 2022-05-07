@@ -33,6 +33,11 @@ python adversarial_seizure_detection.py
 
 ## Results
 
+| Subject ID |  |  |    |    |     |     |     |    |     |     |    |     |     |Average Accuracy|
+| --- | --- | --- | --- |--- | --- | --- | --- |--- | --- | --- |--- | --- | --- | --- |
+|0    | 1   | 2   | 3   | 4  | 5   |6    | 7   | 8  | 9   | 10  | 11 | 12  |13   |     | 
+| 0.755|0.814|0.965|0.781|0.762|0.719|0.731|0.904|0.772|0.629|0.92|0.578|0.694|0.755|0.77|
+
 ## Citation
 @inproceedings{
 author = {Xiang Zhang, Lina Yao, Manqing Dong, Zhe Liu, Yu Zhang and Yong Li },
