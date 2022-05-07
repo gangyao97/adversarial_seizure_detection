@@ -39,16 +39,14 @@ python adversarial_seizure_detection.py
 | 0.755|0.814|0.965|0.781|0.762|0.719|0.731|0.904|0.772|0.629|0.92|0.578|0.694|0.755|0.77|
 
 ## Citation
-@inproceedings{
-author = {Xiang Zhang, Lina Yao, Manqing Dong, Zhe Liu, Yu Zhang and Yong Li },
-title = {Adversarial Representation Learning for Robust Patient-Independent Epileptic Seizure Detection},
-year = {2020},
-isbn = {9781450383592},
-publisher = {IEEE},
-url = {https://ieeexplore.ieee.org/abstract/document/8994148?casa_token=oQVEBO55ba8AAAAA:e3O3w4iyrSDLPWXY2O10ceD47DfB-cR5-KZboDCtHKYQ2QcKD3kN3iI6JC1PKA5kQa4-Yg14},
-doi = {10.1109/JBHI.2020.2971610},
-booktitle = {IEEE Journal of Biomedical and Health Informatics},
-pages = {2852 - 2859},
-numpages = {8},
-keywords = {Non-invasive EEG,seizure detection,patient-independent,adversarial deep learning},
+@article{zhang2020adversarial,
+  title={Adversarial representation learning for robust patient-independent epileptic seizure detection},
+  author={Zhang, Xiang and Yao, Lina and Dong, Manqing and Liu, Zhe and Zhang, Yu and Li, Yong},
+  journal={IEEE journal of biomedical and health informatics},
+  volume={24},
+  number={10},
+  pages={2852--2859},
+  year={2020},
+  publisher={IEEE}
+  keywords = {Non-invasive EEG,seizure detection,patient-independent,adversarial deep learning},
 }
