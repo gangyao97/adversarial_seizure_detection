@@ -34,7 +34,7 @@ https://uofi.box.com/s/z2ji0ilz1n7ylamv1v3s5pa4bmo9imyc
 
 * To train and evaluate the model performance, run the following commands.
 
-$ python adversarial_seizure_detection.py
+$ python adversarialSeizureDectection.py
 
 * When training & evaluation is completed, it will generate the following files:
 1. Log file---record the hyperparameter values for the test
@@ -48,6 +48,8 @@ $ python adversarial_seizure_detection.py
 | --- | --- | --- | --- |--- | --- | --- | --- |--- | --- | --- |--- | --- | --- | --- |
 |0    | 1   | 2   | 3   | 4  | 5   |6    | 7   | 8  | 9   | 10  | 11 | 12  |13   |     | 
 | 0.755|0.814|0.965|0.781|0.762|0.719|0.731|0.904|0.772|0.629|0.92|0.578|0.694|0.755|0.77|
+
+* Please see the detail results in Results folder
 
 ## Citation
 ```yaml
