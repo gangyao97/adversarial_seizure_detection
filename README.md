@@ -19,7 +19,7 @@ If you are using conda, it is recommended to switch to a new virtual environment
 
 ## Data preparation
 Download the data from the following box folder.
-https://uofi.box.com/s/z2ji0ilz1n7ylamv1v3s5pa4bmo9imyc
+* https://uofi.box.com/s/z2ji0ilz1n7ylamv1v3s5pa4bmo9imyc
 
 ## File description
 1. model.py -> script used for the three CNN models 
