@@ -26,6 +26,7 @@ https://uofi.box.com/s/z2ji0ilz1n7ylamv1v3s5pa4bmo9imyc
 2. util.py -> script used to load the configruation file, log the hyperparameter and save the test results
 3. adversarial_seizure_detection.py ->script used for loading the data, trainning and evaluating the model
 4. Baseline_models.ipynb -> scritp used for baseline SVM & RF model 
+5. param.json -> the json file for model hyperparameter
 
 ## Hyperparameter Setting
 
