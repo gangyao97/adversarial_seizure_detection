@@ -7,11 +7,9 @@ Paper link: https://arxiv.org/abs/1909.10868
 ## Overview
 This repository contains the codes for reproducing the adversarial_seizure_detection model of the paper titled "Adversarial representation learning for robust patient-independent epileptic seizure detection"
 
-## Dependencies
+## Dependencies & Requirements
 
 If you are using conda, it is recommended to switch to a new virtual environment.
-
-## Requirements
 
 1. Tensorflow 1.15
 2. Python 3.7
