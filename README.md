@@ -49,7 +49,7 @@ $ python adversarialSeizureDectection.py
 |0    | 1   | 2   | 3   | 4  | 5   |6    | 7   | 8  | 9   | 10  | 11 | 12  |13   |     | 
 | 0.755|0.814|0.965|0.781|0.762|0.719|0.731|0.904|0.772|0.629|0.92|0.578|0.694|0.755|0.77|
 
-* Please see the detail results in Results folder
+* Please see the experimental result summary and detail results in Results folder
 
 ## Citation
 ```yaml
