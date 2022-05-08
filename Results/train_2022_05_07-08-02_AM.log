@@ -1,0 +1,80 @@
+2022-05-07 08:02:14,961 - n_classes : 2
+2022-05-07 08:02:14,961 - n_person_ : 13
+2022-05-07 08:02:14,961 - n_class_t : 2
+2022-05-07 08:02:14,961 - sample_persub : 125000
+2022-05-07 08:02:14,961 - no_fea : 21
+2022-05-07 08:02:14,961 - seg_length : 250
+2022-05-07 08:02:14,961 - Drop_out_keep : 0.8
+2022-05-07 08:02:14,961 - _comment1 : Convolutional AE
+2022-05-07 08:02:14,961 - depth_AE : 4
+2022-05-07 08:02:14,961 - AE_Kernel_size : [2, 2]
+2022-05-07 08:02:14,961 - padding : same
+2022-05-07 08:02:14,961 - conv_activation : relu
+2022-05-07 08:02:14,961 - pool_siz : [2, 1]
+2022-05-07 08:02:14,961 - strides : [2, 1]
+2022-05-07 08:02:14,961 - decoder_kernel : 5
+2022-05-07 08:02:14,961 - decoder_filter : 1
+2022-05-07 08:02:14,961 - decoder_strider : [2, 1]
+2022-05-07 08:02:14,961 - _comment2 : CNN Task
+2022-05-07 08:02:14,961 - depth_1 : 16
+2022-05-07 08:02:14,961 - depth_2 : 32
+2022-05-07 08:02:14,961 - depth_3 : 64
+2022-05-07 08:02:14,961 - depth_4 : 128
+2022-05-07 08:02:14,961 - depth1_2_kernel : [3, 3]
+2022-05-07 08:02:14,961 - depth3_4_kernel : [2, 2]
+2022-05-07 08:02:14,961 - pool1_size : [2, 2]
+2022-05-07 08:02:14,961 - pool1_strides : [2, 2]
+2022-05-07 08:02:14,961 - pool2_size : [2, 2]
+2022-05-07 08:02:14,961 - pool2_strides : [2, 2]
+2022-05-07 08:02:14,961 - pool3_size : [2, 2]
+2022-05-07 08:02:14,961 - pool3_strides : [2, 2]
+2022-05-07 08:02:14,961 - pool4_size : [2, 1]
+2022-05-07 08:02:14,961 - pool4_strides : [2, 1]
+2022-05-07 08:02:14,961 - fc1_hidden : 300
+2022-05-07 08:02:14,961 - fc3_hidden : 200
+2022-05-07 08:02:14,961 - fc_activation : sigmoid
+2022-05-07 08:02:14,961 - learning_rate : 5e-05
+2022-05-07 08:02:14,961 - num_epochs : 251
+2022-05-07 08:02:14,961 - l2_coefficient : 0.005
+2022-05-07 08:02:14,961 - Optimizer : AdamOptimizer
+2022-05-07 08:02:18,989 - 
+The TensorFlow contrib module will not be included in TensorFlow 2.0.
+For more information, please see:
+  * https://github.com/tensorflow/community/blob/master/rfcs/20180907-contrib-sunset.md
+  * https://github.com/tensorflow/addons
+  * https://github.com/tensorflow/io (for I/O related ops)
+If you depend on functionality not listed there, please file an issue.
+
+2022-05-07 08:02:19,456 - From C:\Users\gangy\anaconda3\envs\py37\lib\site-packages\tensorflow_core\contrib\layers\python\layers\layers.py:650: Layer.apply (from tensorflow.python.keras.engine.base_layer) is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `layer.__call__` method instead.
+2022-05-07 08:02:19,468 - From C:\yg\MCS\DLH\Project\Paper 2\model.py:37: calling dropout (from tensorflow.python.ops.nn_ops) with keep_prob is deprecated and will be removed in a future version.
+Instructions for updating:
+Please use `rate` instead of `keep_prob`. Rate should be set to `rate = 1 - keep_prob`.
+2022-05-07 08:02:19,468 - From C:\yg\MCS\DLH\Project\Paper 2\model.py:43: conv2d (from tensorflow.python.layers.convolutional) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use `tf.keras.layers.Conv2D` instead.
+2022-05-07 08:02:19,478 - From C:\yg\MCS\DLH\Project\Paper 2\model.py:44: max_pooling2d (from tensorflow.python.layers.pooling) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use keras.layers.MaxPooling2D instead.
+2022-05-07 08:02:19,489 - From C:\yg\MCS\DLH\Project\Paper 2\model.py:52: conv2d_transpose (from tensorflow.python.layers.convolutional) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use `tf.keras.layers.Conv2DTranspose` instead.
+2022-05-07 08:02:19,580 - From C:\Users\gangy\anaconda3\envs\py37\lib\site-packages\tensorflow_core\contrib\layers\python\layers\layers.py:1634: flatten (from tensorflow.python.layers.core) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use keras.layers.flatten instead.
+2022-05-07 08:02:19,588 - From C:\yg\MCS\DLH\Project\Paper 2\model.py:147: dense (from tensorflow.python.layers.core) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use keras.layers.Dense instead.
+2022-05-07 08:02:19,728 - From C:/yg/MCS/DLH/Project/Paper 2/adversarial_seizure_detection.py:205: softmax_cross_entropy_with_logits (from tensorflow.python.ops.nn_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+
+Future major versions of TensorFlow will allow gradients to flow
+into the labels input on backprop by default.
+
+See `tf.nn.softmax_cross_entropy_with_logits_v2`.
+
+2022-05-07 08:02:19,778 - From C:\Users\gangy\anaconda3\envs\py37\lib\site-packages\tensorflow_core\python\ops\math_grad.py:1375: where (from tensorflow.python.ops.array_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use tf.where in 2.0, which has the same broadcast rule as np.where
+2022-05-07 13:18:05,409 - total training time-- 18947.314648389816
